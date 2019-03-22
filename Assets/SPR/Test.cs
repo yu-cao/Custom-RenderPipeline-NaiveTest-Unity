@@ -6,12 +6,13 @@ public class Test : MonoBehaviour
 {
     private RenderTexture rt;
 
-    public Transform cubeTransform;
+    public Transform[] cubeTransform;
 
     public Mesh cubeMesh;
 
     public Material pureColorMaterial;
 
+    public DrawSkyBox skybox;
     // Start is called before the first frame update
     void Start()
     {
@@ -24,9 +25,13 @@ public class Test : MonoBehaviour
         Graphics.SetRenderTarget(rt);
         GL.Clear(true,true,Color.gray);
         //start draw call
+        skybox.SkyBoxDraw(cam);
         pureColorMaterial.color = new Color(0,0.5f,0.8f);
         pureColorMaterial.SetPass(0);
-        Graphics.DrawMeshNow(cubeMesh,cubeTransform.localToWorldMatrix);
+        foreach(var i in cubeTransform)
+        {
+            Graphics.DrawMeshNow(cubeMesh, i.localToWorldMatrix);
+        }
         //end draw call
         Graphics.Blit(rt,cam.targetTexture);
     }
