@@ -4,35 +4,62 @@ using UnityEngine;
 
 public class Test : MonoBehaviour
 {
-    private RenderTexture rt;
-
-    public Transform[] cubeTransform;
-
+    private static int _DepthTexture = Shader.PropertyToID("_DepthTexture");
+    private RenderTexture cameraTarget;
+    private RenderBuffer[] GBuffers;
+    private RenderTexture[] GBufferTextures;
+    private int[] gbufferIDs;
+    public Transform[] cubeTransforms;
     public Mesh cubeMesh;
+    public Material deferredMaterial;
+    public DrawSkyBox skyDraw;
+    public DeferredLighting lighting;
+    private RenderTexture depthTexture;
 
-    public Material pureColorMaterial;
-
-    public DrawSkyBox skybox;
-    // Start is called before the first frame update
     void Start()
     {
-        rt = new RenderTexture(Screen.width,Screen.height,0);
+        //定制了3块RT，第一块是CameraTarget，也就是光照计算后的结果
+        //第二块是四个贴图，GBuffer，在Shader中输出这四个值
+        //第三块是depthTexture用来处理深度问题
+        cameraTarget = new RenderTexture(Screen.width, Screen.height, 0);
+        GBufferTextures = new[]
+        {
+            new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.ARGBHalf,RenderTextureReadWrite.Linear),
+            new RenderTexture(Screen.width, Screen.height,0,RenderTextureFormat.ARGBHalf,RenderTextureReadWrite.Linear),
+            new RenderTexture(Screen.width, Screen.height,0,RenderTextureFormat.ARGBHalf,RenderTextureReadWrite.Linear),
+            new RenderTexture(Screen.width, Screen.height,0,RenderTextureFormat.ARGBHalf,RenderTextureReadWrite.Linear),
+        };
+        depthTexture = new RenderTexture(Screen.width, Screen.height, 24, RenderTextureFormat.Depth, RenderTextureReadWrite.Linear);
+
+        GBuffers = new RenderBuffer[GBufferTextures.Length];
+        for (int i = 0; i < GBuffers.Length; i++)
+        {
+            GBuffers[i] = GBufferTextures[i].colorBuffer;
+        }
+        gbufferIDs = new[]
+        {
+            Shader.PropertyToID("_GBuffer0"),
+            Shader.PropertyToID("_GBuffer1"),
+            Shader.PropertyToID("_GBuffer2"),
+            Shader.PropertyToID("_GBuffer3"),
+        };
     }
 
     private void OnPostRender()
     {
         Camera cam = Camera.current;
-        Graphics.SetRenderTarget(rt);
-        GL.Clear(true,true,Color.gray);
+        Shader.SetGlobalTexture(_DepthTexture, depthTexture);
+        Graphics.SetRenderTarget(GBuffers, depthTexture.depthBuffer);
+        GL.Clear(true, true, Color.gray);
         //start draw call
-        skybox.SkyBoxDraw(cam);
-        pureColorMaterial.color = new Color(0,0.5f,0.8f);
-        pureColorMaterial.SetPass(0);
-        foreach(var i in cubeTransform)
+        deferredMaterial.SetPass(0);
+        foreach (var i in cubeTransforms)//遍历每个obj的Mesh进行输出
         {
             Graphics.DrawMeshNow(cubeMesh, i.localToWorldMatrix);
         }
+        lighting.DrawLight(GBufferTextures, gbufferIDs, cameraTarget, cam);
+        skyDraw.SkyBoxDraw(cam, cameraTarget.colorBuffer, depthTexture.depthBuffer);
         //end draw call
-        Graphics.Blit(rt,cam.targetTexture);
+        Graphics.Blit(cameraTarget, cam.targetTexture);
     }
 }

@@ -53,10 +53,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\SPR\DeferredLighting.cs" />
      <Compile Include="Assets\SPR\DrawSkyBox.cs" />
      <Compile Include="Assets\SPR\Test.cs" />
      <None Include="Assets\Shader\Test.shader" />
+     <None Include="Assets\Shader\DeferredLight.shader" />
      <None Include="Assets\Shader\skybox.shader" />
+     <None Include="Assets\Shader\Specular.shader" />
  <Reference Include="Unity.TextMeshPro.Editor">
  <HintPath>C:/Users/DELL/Desktop/SRP/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
  </Reference>

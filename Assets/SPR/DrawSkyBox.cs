@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
 
 [System.Serializable]
 public class DrawSkyBox
@@ -42,7 +41,7 @@ public class DrawSkyBox
     }
 
     //将四个远裁面传入Shader中
-    public void SkyBoxDraw(Camera cam)
+    public void SkyBoxDraw(Camera cam, RenderBuffer cameraTarget, RenderBuffer depth)
     {
         corners[0] = cam.ViewportToScreenPoint(new Vector3(0, 0, cam.farClipPlane));
         corners[1] = cam.ViewportToScreenPoint(new Vector3(1, 0, cam.farClipPlane));
@@ -50,6 +49,7 @@ public class DrawSkyBox
         corners[3] = cam.ViewportToScreenPoint(new Vector3(1, 1, cam.farClipPlane));
         skyboxMaterial.SetVectorArray(_Corner, corners);
         skyboxMaterial.SetPass(0);
+        Graphics.SetRenderTarget(cameraTarget, depth);
         Graphics.DrawMeshNow(fullScreenMesh, Matrix4x4.identity);
     }
 }
