@@ -284,6 +284,7 @@ GameObject:
   - component: {fileID: 534669904}
   - component: {fileID: 534669903}
   - component: {fileID: 534669906}
+  - component: {fileID: 534669907}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -378,6 +379,23 @@ MonoBehaviour:
   lighting:
     DeferredMaterial: {fileID: 2100000, guid: 3444d12f3221c1d4491d0ebcafb4b210, type: 2}
     directionalLight: {fileID: 170076734}
+--- !u!114 &534669907
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 534669902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60ed1ceded90e0e4daa9497bed53591c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableInputCapture: 1
+  holdRightMouseCapture: 0
+  lookSpeed: 5.05
+  moveSpeed: 5
+  sprintSpeed: 56.2
 --- !u!1 &1309313217
 GameObject:
   m_ObjectHideFlags: 0

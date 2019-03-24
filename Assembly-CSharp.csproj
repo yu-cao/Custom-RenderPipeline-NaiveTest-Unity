@@ -55,6 +55,7 @@
   <ItemGroup>
      <Compile Include="Assets\SPR\DeferredLighting.cs" />
      <Compile Include="Assets\SPR\DrawSkyBox.cs" />
+     <Compile Include="Assets\SPR\MovingCamera.cs" />
      <Compile Include="Assets\SPR\Test.cs" />
      <None Include="Assets\Shader\Test.shader" />
      <None Include="Assets\Shader\DeferredLight.shader" />
