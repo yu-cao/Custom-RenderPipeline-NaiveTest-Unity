@@ -9,12 +9,14 @@ public class Test : MonoBehaviour
     private RenderBuffer[] GBuffers;
     private RenderTexture[] GBufferTextures;
     private int[] gbufferIDs;
-    public Transform[] cubeTransforms;
-    public Mesh cubeMesh;
+//    public Transform[] cubeTransforms;
+//    public Mesh cubeMesh;
     public Material deferredMaterial;
     public DrawSkyBox skyDraw;
     public DeferredLighting lighting;
     private RenderTexture depthTexture;
+    public RenderObj[] allRenderObjs;//所有要渲染的物体
+    [Range(0, 4f)] public float superSample = 1;
 
     void Start()
     {
@@ -43,6 +45,23 @@ public class Test : MonoBehaviour
             Shader.PropertyToID("_GBuffer2"),
             Shader.PropertyToID("_GBuffer3"),
         };
+
+        //把所有的Obj进行排序和剔除
+        SortMesh.InitSortMesh(allRenderObjs.Length);
+        CullMesh.allObjects = allRenderObjs;
+        foreach (var i in allRenderObjs)
+        {
+            i.Init();
+        }
+    }
+
+    //对渲染纹理的大小进行重新大小调整
+    private static void ReSize(RenderTexture rt, int width, int height)
+    {
+        rt.Release();
+        rt.width = width;
+        rt.height = height;
+        rt.Create();
     }
 
     private void OnPostRender()
