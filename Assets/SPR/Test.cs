@@ -27,7 +27,7 @@ public class Test : MonoBehaviour
         //定制了3块RT，第一块是CameraTarget，也就是光照计算后的结果
         //第二块是四个贴图，GBuffer，在Shader中输出这四个值
         //第三块是depthTexture用来处理深度问题
-        cameraTarget = new RenderTexture(Screen.width, Screen.height, 0);
+        cameraTarget = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear);
         GBufferTextures = new[]
         {
             new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.ARGBHalf,RenderTextureReadWrite.Linear),
@@ -110,15 +110,14 @@ public class Test : MonoBehaviour
         }
     
         Graphics.SetRenderTarget(GBuffers, depthTexture.depthBuffer);
-        GL.Clear(true, true, Color.gray);
+        GL.Clear(true, true, Color.black);
         //start draw call
         deferredMaterial.SetPass(0);
         sortHandle.Complete();
         for (int i = 0; i < SortMesh.sortObj.Length; i++)//遍历每个obj的Mesh进行输出
         {
             DrawElements(ref SortMesh.sortObj[i]);
-        }
-    
+        }        
         lighting.DrawLight(GBufferTextures, gbufferIDs, cameraTarget, cam);
         skyDraw.SkyBoxDraw(cam, cameraTarget.colorBuffer, depthTexture.depthBuffer);
         //end draw call

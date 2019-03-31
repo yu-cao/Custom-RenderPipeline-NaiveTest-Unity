@@ -19,15 +19,15 @@ public class DrawSkyBox
             if (m_mesh != null)
                 return m_mesh;
             m_mesh = new Mesh();
-            m_mesh.vertices = new Vector3[]
+            m_mesh.vertices = new []
             {
-                new Vector4(-1,-1,0, 1),
-                new Vector4(-1,1,0, 1),
-                new Vector4(1,1,0, 1),
-                new Vector4(1,-1,0, 1)
+                new Vector3(-1,-1,0),
+                new Vector3(-1,1,0),
+                new Vector3(1,1,0),
+                new Vector3(1,-1,0)
             };
             //我们使用DX平台，UV的y轴要颠倒
-            m_mesh.uv = new Vector2[]
+            m_mesh.uv = new []
             {
                 new Vector2(0,1),
                 new Vector2(0,0),
@@ -43,10 +43,11 @@ public class DrawSkyBox
     //将四个远裁面传入Shader中
     public void SkyBoxDraw(Camera cam, RenderBuffer cameraTarget, RenderBuffer depth)
     {
-        corners[0] = cam.ViewportToScreenPoint(new Vector3(0, 0, cam.farClipPlane));
-        corners[1] = cam.ViewportToScreenPoint(new Vector3(1, 0, cam.farClipPlane));
-        corners[2] = cam.ViewportToScreenPoint(new Vector3(0, 1, cam.farClipPlane));
-        corners[3] = cam.ViewportToScreenPoint(new Vector3(1, 1, cam.farClipPlane));
+        //一定是要转回到世界空间而不是裁剪空间中（一开始传错了空间导致卡bug）
+        corners[0] = cam.ViewportToWorldPoint(new Vector3(0, 0, cam.farClipPlane));
+        corners[1] = cam.ViewportToWorldPoint(new Vector3(1, 0, cam.farClipPlane));
+        corners[2] = cam.ViewportToWorldPoint(new Vector3(0, 1, cam.farClipPlane));
+        corners[3] = cam.ViewportToWorldPoint(new Vector3(1, 1, cam.farClipPlane));
         skyboxMaterial.SetVectorArray(_Corner, corners);
         skyboxMaterial.SetPass(0);
         Graphics.SetRenderTarget(cameraTarget, depth);
