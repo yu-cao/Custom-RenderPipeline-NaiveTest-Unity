@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Jobs;
 using UnityEngine;
 
-public class CullMesh : MonoBehaviour
+public struct CullMesh : IJobParallelFor
 {
     public static RenderObj[] allObjects;//每个需要绘制的物体的component
 
@@ -12,6 +13,38 @@ public class CullMesh : MonoBehaviour
     public static Vector3 cameraPos;
     public static float cameraFarClipDistance;
 
+    public static void UpdateFrame(Camera cam, ref Matrix4x4 invvp, Vector3 cameraPosition)
+    {
+        GetCullingPlanes(ref invvp);
+        cameraFarClipDistance = cam.farClipPlane;
+        cameraPos = cameraPosition;
+    }
+
+    public static void GetCullingPlanes(ref Matrix4x4 invVp)
+    {
+        //8个远近平面的平面点
+        Vector3 nearLeftButtom = invVp.MultiplyPoint(new Vector3(-1, -1, 1));
+        Vector3 nearLeftTop = invVp.MultiplyPoint(new Vector3(-1, 1, 1));
+        Vector3 nearRightButtom = invVp.MultiplyPoint(new Vector3(1, -1, 1));
+        Vector3 nearRightTop = invVp.MultiplyPoint(new Vector3(1, 1, 1));
+        Vector3 farLeftButtom = invVp.MultiplyPoint(new Vector3(-1, -1, 0));
+        Vector3 farLeftTop = invVp.MultiplyPoint(new Vector3(-1, 1, 0));
+        Vector3 farRightButtom = invVp.MultiplyPoint(new Vector3(1, -1, 0));
+        Vector3 farRightTop = invVp.MultiplyPoint(new Vector3(1, 1, 0));
+        //六个裁剪面
+        //Near
+        frustumPlanes[0] = new Plane(nearRightTop, nearRightButtom, nearLeftButtom);
+        //Up
+        frustumPlanes[1] = new Plane(farLeftTop, farRightTop, nearRightTop);
+        //Down
+        frustumPlanes[2] = new Plane(nearRightButtom, farRightButtom, farLeftButtom);
+        //Left
+        frustumPlanes[3] = new Plane(farLeftButtom, farLeftTop, nearLeftTop);
+        //Right
+        frustumPlanes[4] = new Plane(farRightButtom, nearRightButtom, nearRightTop);
+        //Far
+        frustumPlanes[5] = new Plane(farLeftButtom, farRightButtom, farRightTop);
+    }
 
     private static bool PlaneTest(ref Matrix4x4 ObjectToWorld, ref Vector3 extent, out Vector3 position)
     {
@@ -44,7 +77,13 @@ public class CullMesh : MonoBehaviour
         {
             float distance = Vector3.Distance(position, cameraPos);
             float layer = distance / cameraFarClipDistance;
-            int layerValue = (int)Mathf.Clamp(Mathf.Lerp(0,))
+            int layerValue = (int) Mathf.Clamp(Mathf.Lerp(0, SortMesh.LayerCount, layer), 0, SortMesh.LayerCount - 1);
+            SortMesh.sortObj[layerValue].Add(distance, obj);
         }
+    }
+
+    public static JobHandle Schedule()
+    {
+        return (new CullMesh()).Schedule(allObjects.Length, 64);
     }
 }

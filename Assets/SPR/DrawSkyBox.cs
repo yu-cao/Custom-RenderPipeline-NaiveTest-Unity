@@ -21,10 +21,10 @@ public class DrawSkyBox
             m_mesh = new Mesh();
             m_mesh.vertices = new Vector3[]
             {
-                new Vector3(-1,-1,0),
-                new Vector3(-1,1,0),
-                new Vector3(1,1,0),
-                new Vector3(1,-1,0)
+                new Vector4(-1,-1,0, 1),
+                new Vector4(-1,1,0, 1),
+                new Vector4(1,1,0, 1),
+                new Vector4(1,-1,0, 1)
             };
             //我们使用DX平台，UV的y轴要颠倒
             m_mesh.uv = new Vector2[]

@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Jobs;
 
-public class SortMesh : IJobParallelFor
+//这里需要是struct方式使得Schedule函数能够被继承
+public struct SortMesh : IJobParallelFor
 {
-    public const int LayerCount = 20;
+    public const int LayerCount = 20;//指定一个分层常量LayerCount，后续物体应该根据距离被均匀准确地分配入这些层中
     public static BinarySort<RenderObj>[] sortObj = new BinarySort<RenderObj>[LayerCount];
     private static bool init = false;
     public static void InitSortMesh(int maximumDrawCall)
@@ -17,14 +18,13 @@ public class SortMesh : IJobParallelFor
     }
     public void Execute(int i)
     {
-        sortObj[i].Sort();
-        sortObj[i].GetSorted();
+        sortObj[i].Sort();//进行排序操作
+        sortObj[i].GetSorted();//完成二叉树的后续遍历
     }
 
     public static JobHandle Schedule(JobHandle cull)
     {
         SortMesh instance = new SortMesh();
-        //TODO
         return instance.Schedule(LayerCount, 1, cull);
     }
 
